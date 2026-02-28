@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cook Bot - Welcome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Garamond', serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            margin-top: -80px; 
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+            display: block;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-text {
+            color: #ff6b35;
+            margin-bottom: 15px;
+        }
+
+        .welcome-text h1 {
+            font-size: 48px;
+            font-weight: normal;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .welcome-text h2 {
+            font-size: 36px;
+            font-weight: normal;
+            margin-bottom: 40px;
+        }
+
+        .login-section {
+            margin-top: 40px;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-family: 'Garamond', serif;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+            background: linear-gradient(45deg, #e55a2b, #e8841a);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .subtitle {
+            color: #ff6b35;
+            font-size: 18px;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+
+        .decoration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 50%;
+        }
+
+        .decoration:nth-child(1) {
+            top: 10%;
+            left: 15%;
+            animation: bounce 4s infinite;
+        }
+
+        .decoration:nth-child(2) {
+            top: 20%;
+            right: 20%;
+            animation: bounce 4s infinite 1s;
+        }
+
+        .decoration:nth-child(3) {
+            bottom: 15%;
+            left: 25%;
+            animation: bounce 4s infinite 2s;
+        }
+
+        .decoration:nth-child(4) {
+            bottom: 25%;
+            right: 15%;
+            animation: bounce 4s infinite 3s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-text h1 {
+                font-size: 36px;
+            }
+            
+            .welcome-text h2 {
+                font-size: 28px;
+            }
+            
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .logo::before {
+                font-size: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="decoration"></div>
+    <div class="decoration"></div>
+    <div class="decoration"></div>
+    <div class="decoration"></div>
+
+    <div class="container">
+        <div class="logo" id="logoContainer">
+            <img src="/script/logo.png" alt="Cook Bot Logo" id="logoImage">
+        </div>
+        
+        <div class="welcome-text">
+            <h1>Welcome !</h1>
+            <h2>To Cook Bot</h2>
+        </div>
+        
+        <div class="login-section">
+            <a href="/chat" class="login-btn" style="text-decoration: none; display: inline-block;">Let's Start Cooking</a>
+            <p class="subtitle">Your AI Kitchen Assistant is waiting</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoImg = document.getElementById('logoImage');
+            
+            logoImg.onload = function() {
+                console.log('Logo loaded successfully');
+            };
+            
+            logoImg.onerror = function() {
+                console.log('Logo not found at path: script/logo.png');
+            };
+        });
+
+        document.addEventListener('click', function(e) {
+            createSparkle(e.pageX, e.pageY);
+        });
+
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            sparkle.style.width = '10px';
+            sparkle.style.height = '10px';
+            sparkle.style.background = '#ff6b35';
+            sparkle.style.borderRadius = '50%';
+            sparkle.style.pointerEvents = 'none';
+            sparkle.style.animation = 'sparkle 0.6s ease-out forwards';
+            sparkle.style.zIndex = '1000';
+            
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+            }, 600);
+        }
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkle {
+                0% {
+                    opacity: 1;
+                    transform: scale(0) rotate(0deg);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(1) rotate(180deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

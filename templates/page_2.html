@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cook Bot - Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Garamond', serif;
+            background-color: #ffffff;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #ff6b35;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ffffff, #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sidebar-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .sidebar-logo::before {
+            content: "🍳";
+            font-size: 24px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .sidebar-logo.has-image::before {
+            display: none;
+        }
+
+        .sidebar-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            font-size: 16px;
+            font-family: 'Garamond', serif;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-btn:active {
+            transform: translateY(0);
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+
+        .chat-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .chat-title {
+            color: #ff6b35;
+            font-size: 24px;
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            opacity: 0;
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .message.bot .message-content {
+            background-color: #ff6b35;
+            color: white;
+            border-bottom-left-radius: 8px;
+        }
+
+        .message.user .message-content {
+            background-color: #f0f0f0;
+            color: #333;
+            border-bottom-right-radius: 8px;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background-color: #ff6b35;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background-color: #e9ecef;
+            color: #666;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background-color: #ffffff;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            padding: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-family: 'Garamond', serif;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            min-height: 20px;
+        }
+
+        .send-btn {
+            background-color: #ff6b35;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background-color: #e55a2b;
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .welcome-message h2 {
+            color: #ff6b35;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .welcome-message p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        .typing-indicator .message-avatar {
+            background-color: #ff6b35;
+            color: white;
+        }
+
+        .typing-dots {
+            background-color: #ff6b35;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .typing-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: white;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .error-message {
+            background-color: #ff4757;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .chat-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 200px;
+                padding: 15px;
+            }
+            
+            .sidebar-logo {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 40px;
+            }
+            
+            .sidebar-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo" id="sidebarLogo">
+            <!-- Enhanced logo loading with multiple fallback paths -->
+            <img id="sidebarLogoImg" src="/static/logo.png" alt="Cook Bot Logo" 
+                 onload="this.parentElement.classList.add('has-image')" 
+                 onerror="this.style.display='none'">
+        </div>
+        
+        <div class="sidebar-buttons">
+            <button class="sidebar-btn" id="newChatBtn">New Chat</button>
+            <button class="sidebar-btn" id="endChatBtn">End Chat</button>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1 class="chat-title">Cook Bot Assistant</h1>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h2>Welcome to Cook Bot!</h2>
+                <p>Your A.I bot is here to cook delicious Indian meals with pure Traditional Methods.</p>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <textarea 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Ask me about recipes, cooking tips, ingredients..."
+                    rows="1"
+                ></textarea>
+                <button class="send-btn" id="sendBtn">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const endChatBtn = document.getElementById('endChatBtn');
+
+        // Enhanced logo loading for sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarLogoImg = document.getElementById('sidebarLogoImg');
+            const sidebarLogoContainer = document.getElementById('sidebarLogo');
+            
+            // Array of possible logo paths
+            const logoPaths = [
+                '/static/logo.png',
+                'static/logo.png',
+                './static/logo.png',
+                '../static/logo.png',
+                'logo.png',
+                './logo.png'
+            ];
+            
+            let currentPathIndex = 0;
+            
+            function tryNextPath() {
+                if (currentPathIndex < logoPaths.length) {
+                    sidebarLogoImg.src = logoPaths[currentPathIndex];
+                    currentPathIndex++;
+                } else {
+                    // If all paths fail, hide the img and show emoji
+                    sidebarLogoImg.style.display = 'none';
+                    sidebarLogoContainer.classList.remove('has-image');
+                    console.log('Sidebar logo not found in any of the attempted paths. Using emoji fallback.');
+                }
+            }
+            
+            sidebarLogoImg.onerror = function() {
+                tryNextPath();
+            };
+            
+            sidebarLogoImg.onload = function() {
+                sidebarLogoContainer.classList.add('has-image');
+                console.log('Sidebar logo loaded successfully from:', sidebarLogoImg.src);
+            };
+            
+            // Start the loading process
+            tryNextPath();
+        });
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        chatInput.addEventListener('input', function() {
+            autoResize(this);
+        });
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${isUser ? '👤' : '🍳'}
+                </div>
+                <div class="message-content">
+                    ${content}
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🍳</div>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            chatMessages.appendChild(errorDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            
+            chatInput.value = '';
+            autoResize(chatInput);
+            
+            sendBtn.disabled = true;
+            
+            showTyping();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+    
+                hideTyping();
+                
+                if (response.ok && data.status === 'success') {
+                    addMessage(data.response);
+                } else {
+                    showError(data.error || 'Failed to get response from bot');
+                }
+            } catch (error) {
+                hideTyping();
+                showError('Network error. Please check your connection and try again.');
+                console.error('Chat error:', error);
+            } finally {
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        async function startNewChat() {
+            try {
+                const response = await fetch('/api/new-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    chatMessages.innerHTML = `
+                        <div class="welcome-message">
+                            <h2>New Chat Started!</h2>
+                            <p>Your A.I bot is ready to help you cook delicious Indian meals.</p>
+                        </div>
+                    `;
+                } else {
+                    showError(data.error || 'Failed to start new chat');
+                }
+            } catch (error) {
+                showError('Failed to start new chat. Please try again.');
+                console.error('New chat error:', error);
+            }
+        }
+
+        function endChat() {
+            if (confirm('Are you sure you want to end this chat session?')) {
+                chatMessages.innerHTML = `
+                    <div class="welcome-message">
+                        <h2>Chat Ended</h2>
+                        <p>Thank you for using Cook Bot! Start a new chat whenever you're ready to cook.</p>
+                    </div>
+                `;
+                
+                chatInput.value = '';
+                autoResize(chatInput);
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); 
+                sendMessage();
+            }
+        });
+
+        newChatBtn.addEventListener('click', startNewChat);
+        endChatBtn.addEventListener('click', endChat);
+
+        window.addEventListener('load', function() {
+            chatInput.focus();
+        });
+    </script>
+</body>
+</html>
