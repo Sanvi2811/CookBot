@@ -1,6 +1,6 @@
 # Cookbot
 
-**Author:** Sanvi Tripathi
+
 
 **Cookbot** is an AI-powered Indian cuisine assistant that acts as a digital cookbook and kitchen companion. It provides recipes, meal suggestions, leftover ideas, and dietary customizations (e.g., Jain, no onion-garlic) using Google's Gemini AI.
 
@@ -156,3 +156,5 @@ curl -X POST http://localhost:5000/api/chat \
 ## License
 
 This project is for educational and personal use. Respect Google’s Gemini API terms of use when using your API key.
+
+**Author:** Sanvi Tripathi
