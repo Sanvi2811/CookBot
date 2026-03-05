@@ -40,7 +40,7 @@ Cookbot/
 ## Prerequisites
 
 - **Python 3.8+**
-- A **Google Gemini API key** from [Google AI Studio](https://makersuite.google.com/app/apikey)
+- A **Google Gemini API key** from [Google AI Studio]  (https://makersuite.google.com/app/apikey)
 
 ---
 
